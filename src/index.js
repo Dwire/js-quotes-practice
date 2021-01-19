@@ -6,6 +6,9 @@ getAllquotes()
 
 const quoteList = document.querySelector("#quote-list")
 const newQuoteForm = document.querySelector("#new-quote-form")
+const filterBtn = document.querySelector("#sort-btn")
+
+console.log('filter', filterBtn);
 
 
 // ******************** Add Event Listeners **************
@@ -13,12 +16,19 @@ newQuoteForm.addEventListener("submit", gatherFormData)
 quoteList.addEventListener('click', handleClickEvent)
 // quoteList.addEventListener('click', getIdToDeleteQuote)
 // quoteList.addEventListener('click', getIdToLikeQuote)
+filterBtn.addEventListener('click', getFilerValue)
 
 
 
 // ***************** Network Request to DB **************
-function getAllquotes(){
-  fetch("http://localhost:3000/quotes?_embed=likes")
+function getAllquotes(filterQuery){
+  let fetchUrl = "http://localhost:3000/quotes?_embed=likes"
+
+  if (filterQuery === "Author"){
+    fetchUrl = "http://localhost:3000/quotes?_sort=author&_embed=likes"
+  }
+
+  fetch(fetchUrl)
   .then(res => res.json())
   .then(addQuoatesToDom)
 }
@@ -52,6 +62,9 @@ function createLike(quoteId){
 
 // ****************** DOM manipulation & logic ***************************
 function addQuoatesToDom(allQuotes){
+  console.log(allQuotes);
+  
+  quoteList.innerHTML = ""
   allQuotes.forEach(quote => {
     quoteList.innerHTML += `
     <li class='quote-card'>
@@ -128,4 +141,18 @@ function increaseLikes(e){
   let currentLikes = parseInt(e.target.querySelector(".likes-span").innerText)
   currentLikes++
   e.target.querySelector(".likes-span").innerText = currentLikes
+}
+
+
+function getFilerValue(e){
+  const filterQuery = e.target.querySelector('span').innerText
+
+  if (e.target.querySelector('span').innerText === "Author"){
+    e.target.querySelector('span').innerText = "ID"
+  }else{ 
+    e.target.querySelector('span').innerText = "Author"
+ }
+
+  // const filterQuery = "Author"
+  getAllquotes(filterQuery)
 }
